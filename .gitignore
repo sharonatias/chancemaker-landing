@@ -1,0 +1,12 @@
+# Screenshots and dev files
+*.png
+!assets/**/*.png
+content.json.backup.*
+full-page-*.png
+full-v2.png
+mockup-fullpage.png
+mockup.html
+.claude/
+node_modules/
+.vercel/
+.DS_Store

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ניהול - צ׳אנסמייקר</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --coral: #ef886a;
+      --dark: #1a1a2e;
+      --text: #3a3a4a;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --border: #e0e0e5;
+      --success: #34c759;
+      --danger: #ff3b30;
+    }
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .admin-header {
+      background: var(--dark); color: white;
+      padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-header h1 { font-size: 22px; font-weight: 700; }
+    .admin-header h1 span { color: var(--coral); }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .btn {
+      padding: 10px 24px; border-radius: 10px;
+      border: none; font-family: inherit;
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--coral); color: white;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.15); color: white;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+    .save-status {
+      font-size: 14px; color: var(--success);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .save-status.visible { opacity: 1; }
+
+    /* Layout */
+    .admin-layout {
+      display: flex; max-width: 1400px;
+      margin: 0 auto; min-height: calc(100vh - 60px);
+    }
+    .admin-sidebar {
+      width: 220px; background: var(--card);
+      border-left: 1px solid var(--border);
+      padding: 24px 0; position: sticky;
+      top: 60px; height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .sidebar-link {
+      display: block; padding: 12px 24px;
+      color: var(--text); text-decoration: none;
+      font-size: 15px; font-weight: 500;
+      transition: all 0.2s; border-right: 3px solid transparent;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: rgba(239,136,106,0.08);
+      color: var(--coral); border-right-color: var(--coral);
+    }
+    .admin-main {
+      flex: 1; padding: 32px;
+    }
+
+    /* Sections */
+    .admin-section {
+      background: var(--card);
+      border-radius: 16px; padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .admin-section h2 {
+      font-size: 22px; font-weight: 700;
+      color: var(--dark); margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    .admin-section h2 span { color: var(--coral); }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block; font-size: 14px;
+      font-weight: 600; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px; font-family: inherit;
+      font-size: 16px; color: var(--text);
+      transition: border-color 0.2s;
+      background: var(--bg);
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--coral);
+      box-shadow: 0 0 0 3px rgba(239,136,106,0.15);
+    }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-row-3 {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Cards editor */
+    .card-editor {
+      background: var(--bg); border-radius: 12px;
+      padding: 20px; margin-bottom: 16px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .card-editor-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .card-editor-header h4 {
+      font-size: 16px; font-weight: 600;
+      color: var(--coral);
+    }
+    .btn-remove {
+      background: var(--danger); color: white;
+      border: none; width: 30px; height: 30px;
+      border-radius: 8px; cursor: pointer;
+      font-size: 16px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .btn-add {
+      background: none; border: 2px dashed var(--border);
+      border-radius: 12px; padding: 16px;
+      width: 100%; cursor: pointer;
+      font-family: inherit; font-size: 15px;
+      color: var(--text); transition: all 0.2s;
+    }
+    .btn-add:hover {
+      border-color: var(--coral); color: var(--coral);
+    }
+
+    /* Upload */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px; padding: 24px;
+      text-align: center; cursor: pointer;
+      transition: all 0.2s; position: relative;
+    }
+    .upload-area:hover { border-color: var(--coral); }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+    }
+    .upload-preview {
+      max-width: 200px; max-height: 150px;
+      border-radius: 8px; margin-top: 12px;
+    }
+
+    /* Number input with slider */
+    .range-group {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .range-group input[type="range"] {
+      flex: 1; accent-color: var(--coral);
+    }
+    .range-group .range-value {
+      min-width: 50px; text-align: center;
+      font-weight: 600; color: var(--coral);
+    }
+
+    /* Preview frame */
+    .preview-frame {
+      position: fixed; bottom: 20px; left: 20px;
+      z-index: 200;
+    }
+    .preview-btn {
+      background: var(--coral); color: white;
+      border: none; padding: 14px 28px;
+      border-radius: 50px; font-family: inherit;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(239,136,106,0.4);
+      transition: all 0.2s;
+    }
+    .preview-btn:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+  <header class="admin-header">
+    <h1>🎛️ ניהול <span>צ׳אנסמייקר</span></h1>
+    <div class="header-actions">
+      <span class="save-status" id="saveStatus">✓ נשמר בהצלחה</span>
+      <button class="btn btn-secondary" onclick="window.open('/', '_blank')">👁️ תצוגה מקדימה</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveAll()">💾 שמור שינויים</button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <a href="#sec-general" class="sidebar-link active">⚙️ כללי</a>
+      <a href="#sec-social" class="sidebar-link">🔗 רשתות חברתיות</a>
+      <a href="#sec-nav" class="sidebar-link">🧭 ניווט</a>
+      <a href="#sec-hero" class="sidebar-link">🎬 הירו</a>
+      <a href="#sec-mockup" class="sidebar-link">📱 מוקאפ</a>
+      <a href="#sec-pain" class="sidebar-link">💔 נקודות כאב</a>
+      <a href="#sec-benefits" class="sidebar-link">✨ יתרונות</a>
+      <a href="#sec-about" class="sidebar-link">👩 מי אני</a>
+      <a href="#sec-process" class="sidebar-link">📋 איך זה עובד</a>
+      <a href="#sec-cta" class="sidebar-link">📢 קריאה לפעולה</a>
+      <a href="#sec-fonts" class="sidebar-link">🔤 פונטים</a>
+      <a href="#sec-footer" class="sidebar-link">📄 פוטר</a>
+    </aside>
+
+    <main class="admin-main" id="adminMain"></main>
+  </div>
+
+  <div class="preview-frame">
+    <button class="preview-btn" onclick="window.open('/', '_blank')">👁️ תצוגה מקדימה</button>
+  </div>
+
+  <script>
+    let content = null;
+
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content');
+        content = await res.json();
+      } catch {
+        const res = await fetch('/content.json');
+        content = await res.json();
+      }
+      renderAdmin();
+    }
+
+    function renderAdmin() {
+      const main = document.getElementById('adminMain');
+      main.innerHTML = `
+
+        <!-- General -->
+        <div class="admin-section" id="sec-general">
+          <h2>⚙️ הגדרות <span>כלליות</span></h2>
+          <div class="form-group">
+            <label>כותרת האתר</label>
+            <input type="text" data-path="site.title" value="${esc(content.site.title)}">
+          </div>
+          <div class="form-group">
+            <label>תיאור האתר (SEO)</label>
+            <input type="text" data-path="site.description" value="${esc(content.site.description)}">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>טלפון וואטסאפ (עם קידומת מדינה)</label>
+              <input type="text" data-path="site.whatsappPhone" value="${esc(content.site.whatsappPhone)}" dir="ltr">
+            </div>
+            <div class="form-group">
+              <label>הודעת וואטסאפ אוטומטית</label>
+              <input type="text" data-path="site.whatsappMessage" value="${esc(content.site.whatsappMessage)}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Social -->
+        <div class="admin-section" id="sec-social">
+          <h2>🔗 רשתות <span>חברתיות</span></h2>
+          <div class="form-group">
+            <label>אינסטגרם</label>
+            <input type="url" data-path="social.instagram" value="${esc(content.social.instagram)}" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>פייסבוק</label>
+            <input type="url" data-path="social.facebook" value="${esc(content.social.facebook)}" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>טיקטוק</label>
+            <input type="url" data-path="social.tiktok" value="${esc(content.social.tiktok)}" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>יוטיוב</label>
+            <input type="url" data-path="social.youtube" value="${esc(content.social.youtube)}" dir="ltr">
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="admin-section" id="sec-nav">
+          <h2>🧭 <span>ניווט</span></h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>לוגו (טקסט)</label>
+              <input type="text" data-path="nav.logo" value="${esc(content.nav.logo)}">
+            </div>
+            <div class="form-group">
+              <label>טקסט כפתור CTA</label>
+              <input type="text" data-path="nav.ctaText" value="${esc(content.nav.ctaText)}">
+            </div>
+          </div>
+          <h3 style="margin: 16px 0 12px; font-size: 16px;">קישורי ניווט</h3>
+          <div id="navLinksEditor"></div>
+        </div>
+
+        <!-- Hero -->
+        <div class="admin-section" id="sec-hero">
+          <h2>🎬 <span>הירו</span></h2>
+          <div class="form-group">
+            <label>באדג׳ (טקסט למעלה)</label>
+            <input type="text" data-path="hero.badge" value="${esc(content.hero.badge)}">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>כותרת ראשית</label>
+              <input type="text" data-path="hero.title" value="${esc(content.hero.title)}">
+            </div>
+            <div class="form-group">
+              <label>כותרת מודגשת (צבעונית)</label>
+              <input type="text" data-path="hero.titleHighlight" value="${esc(content.hero.titleHighlight)}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>תת-כותרת</label>
+            <textarea data-path="hero.subtitle">${esc(content.hero.subtitle)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>טקסט כפתור CTA</label>
+            <input type="text" data-path="hero.ctaText" value="${esc(content.hero.ctaText)}">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>קישור וידאו (URL - mp4)</label>
+              <input type="url" data-path="hero.videoUrl" value="${esc(content.hero.videoUrl || '')}" dir="ltr" placeholder="השאר ריק להצגת תמונה">
+            </div>
+            <div class="form-group">
+              <label>תמונת רקע / פוסטר לוידאו</label>
+              <input type="text" data-path="hero.videoPoster" value="${esc(content.hero.videoPoster)}" dir="ltr">
+              <div class="upload-area" style="margin-top: 8px;">
+                <span>📷 גרור תמונה או לחץ להעלאה</span>
+                <input type="file" accept="image/*" onchange="uploadFile(this, 'hero.videoPoster')">
+              </div>
+            </div>
+          </div>
+          <h3 style="margin: 16px 0 12px; font-size: 16px;">סטטיסטיקות</h3>
+          <div id="heroStatsEditor"></div>
+        </div>
+
+        <!-- Mockup -->
+        <div class="admin-section" id="sec-mockup">
+          <h2>📱 <span>מוקאפ</span></h2>
+          <div class="form-group">
+            <label>תמונת מוקאפ (וואטסאפ / התאמות)</label>
+            <input type="text" data-path="mockup.image" value="${esc(content.mockup?.image || '')}">
+          </div>
+          <div class="form-group">
+            <label>טקסט חלופי (alt)</label>
+            <input type="text" data-path="mockup.alt" value="${esc(content.mockup?.alt || '')}">
+          </div>
+          <div class="upload-area" data-target="mockup.image">
+            📷 גרור תמונה או לחץ להעלאה
+          </div>
+        </div>
+
+        <!-- Pain Points -->
+        <div class="admin-section" id="sec-pain">
+          <h2>💔 נקודות <span>כאב</span></h2>
+          <div class="form-group">
+            <label>כותרת הסקשן</label>
+            <input type="text" data-path="painPoints.title" value="${esc(content.painPoints.title)}">
+          </div>
+          <div id="painCardsEditor"></div>
+          <button class="btn-add" onclick="addCard('painPoints')">+ הוסף כרטיס</button>
+        </div>
+
+        <!-- Benefits -->
+        <div class="admin-section" id="sec-benefits">
+          <h2>✨ <span>יתרונות</span></h2>
+          <div class="form-group">
+            <label>כותרת הסקשן</label>
+            <input type="text" data-path="benefits.title" value="${esc(content.benefits.title)}">
+          </div>
+          <div class="form-group">
+            <label>טאגליין</label>
+            <input type="text" data-path="benefits.tagline" value="${esc(content.benefits.tagline)}">
+          </div>
+          <div id="benefitCardsEditor"></div>
+          <button class="btn-add" onclick="addCard('benefits')">+ הוסף כרטיס</button>
+        </div>
+
+        <!-- About -->
+        <div class="admin-section" id="sec-about">
+          <h2>👩 <span>מי אני</span></h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>כותרת</label>
+              <input type="text" data-path="about.title" value="${esc(content.about.title)}">
+            </div>
+            <div class="form-group">
+              <label>מבוא</label>
+              <input type="text" data-path="about.intro" value="${esc(content.about.intro)}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>משפט מודגש</label>
+            <input type="text" data-path="about.highlight" value="${esc(content.about.highlight)}">
+          </div>
+          <div class="form-group">
+            <label>טקסט פסקה 1</label>
+            <textarea data-path="about.text1">${esc(content.about.text1)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>טקסט מודגש</label>
+            <input type="text" data-path="about.boldText" value="${esc(content.about.boldText)}">
+          </div>
+          <div class="form-group">
+            <label>טקסט פסקה 2</label>
+            <textarea data-path="about.text2">${esc(content.about.text2)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>תמונה</label>
+            <input type="text" data-path="about.photo" value="${esc(content.about.photo)}" dir="ltr">
+            <div class="upload-area" style="margin-top: 8px;">
+              <span>📷 גרור תמונה או לחץ להעלאה</span>
+              <input type="file" accept="image/*" onchange="uploadFile(this, 'about.photo')">
+              ${content.about.photo ? `<br><img class="upload-preview" src="${content.about.photo}">` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- Process -->
+        <div class="admin-section" id="sec-process">
+          <h2>📋 איך זה <span>עובד</span></h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>תגית</label>
+              <input type="text" data-path="process.tag" value="${esc(content.process.tag)}">
+            </div>
+            <div class="form-group">
+              <label>כותרת</label>
+              <input type="text" data-path="process.title" value="${esc(content.process.title)}">
+            </div>
+          </div>
+          <div id="processStepsEditor"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="admin-section" id="sec-cta">
+          <h2>📢 קריאה <span>לפעולה</span></h2>
+          <div class="form-group">
+            <label>כותרת</label>
+            <input type="text" data-path="cta.title" value="${esc(content.cta.title)}">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>טקסט כפתור</label>
+              <input type="text" data-path="cta.buttonText" value="${esc(content.cta.buttonText)}">
+            </div>
+            <div class="form-group">
+              <label>תת-כותרת</label>
+              <input type="text" data-path="cta.subtitle" value="${esc(content.cta.subtitle)}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Fonts -->
+        <div class="admin-section" id="sec-fonts">
+          <h2>🔤 <span>פונטים</span> וגדלים</h2>
+          <div class="form-group">
+            <label>גודל כותרות ראשיות (px)</label>
+            <div class="range-group">
+              <input type="range" min="28" max="80" data-path="fonts.headingSize" value="${content.fonts.headingSize}" oninput="this.nextElementSibling.textContent=this.value+'px'">
+              <span class="range-value">${content.fonts.headingSize}px</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>גודל כותרות משנה (px)</label>
+            <div class="range-group">
+              <input type="range" min="24" max="60" data-path="fonts.subheadingSize" value="${content.fonts.subheadingSize}" oninput="this.nextElementSibling.textContent=this.value+'px'">
+              <span class="range-value">${content.fonts.subheadingSize}px</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>גודל טקסט גוף (px)</label>
+            <div class="range-group">
+              <input type="range" min="14" max="24" data-path="fonts.bodySize" value="${content.fonts.bodySize}" oninput="this.nextElementSibling.textContent=this.value+'px'">
+              <span class="range-value">${content.fonts.bodySize}px</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>גודל כותרת כרטיסיה (px)</label>
+            <div class="range-group">
+              <input type="range" min="12" max="32" data-path="fonts.cardTitleSize" value="${content.fonts.cardTitleSize || 18}" oninput="this.nextElementSibling.textContent=this.value+'px'">
+              <span class="range-value">${content.fonts.cardTitleSize || 18}px</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>גודל תיאור כרטיסיה (px)</label>
+            <div class="range-group">
+              <input type="range" min="10" max="24" data-path="fonts.cardDescSize" value="${content.fonts.cardDescSize || 14}" oninput="this.nextElementSibling.textContent=this.value+'px'">
+              <span class="range-value">${content.fonts.cardDescSize || 14}px</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="admin-section" id="sec-footer">
+          <h2>📄 <span>פוטר</span></h2>
+          <div class="form-group">
+            <label>טקסט</label>
+            <input type="text" data-path="footer.text" value="${esc(content.footer.text)}">
+          </div>
+        </div>
+      `;
+
+      renderNavLinksEditor();
+      renderHeroStatsEditor();
+      renderCardEditors('painPoints', 'painCardsEditor', ['title', 'description']);
+      renderCardEditors('benefits', 'benefitCardsEditor', ['title', 'description', 'icon']);
+      renderProcessEditor();
+      setupSidebarNav();
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function setNestedValue(obj, path, value) {
+      const keys = path.split('.');
+      let current = obj;
+      for (let i = 0; i < keys.length - 1; i++) {
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value;
+    }
+
+    function renderNavLinksEditor() {
+      const container = document.getElementById('navLinksEditor');
+      container.innerHTML = content.nav.links.map((link, i) => `
+        <div class="card-editor">
+          <div class="form-row">
+            <div class="form-group">
+              <label>טקסט</label>
+              <input type="text" data-array="nav.links.${i}.text" value="${esc(link.text)}">
+            </div>
+            <div class="form-group">
+              <label>קישור</label>
+              <input type="text" data-array="nav.links.${i}.href" value="${esc(link.href)}" dir="ltr">
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderHeroStatsEditor() {
+      const container = document.getElementById('heroStatsEditor');
+      container.innerHTML = content.hero.stats.map((stat, i) => `
+        <div class="card-editor">
+          <div class="form-row">
+            <div class="form-group">
+              <label>מספר</label>
+              <input type="text" data-array="hero.stats.${i}.number" value="${esc(stat.number)}">
+            </div>
+            <div class="form-group">
+              <label>תיאור</label>
+              <input type="text" data-array="hero.stats.${i}.label" value="${esc(stat.label)}">
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCardEditors(section, containerId, fields) {
+      const container = document.getElementById(containerId);
+      const cards = content[section].cards;
+      container.innerHTML = cards.map((card, i) => `
+        <div class="card-editor">
+          <div class="card-editor-header">
+            <h4>כרטיס ${i + 1}</h4>
+            <button class="btn-remove" onclick="removeCard('${section}', ${i})">✕</button>
+          </div>
+          ${fields.map(f => {
+            if (f === 'icon') {
+              return `
+                <div class="form-group">
+                  <label>אייקון</label>
+                  <input type="text" data-array="${section}.cards.${i}.${f}" value="${esc(card[f] || '')}" dir="ltr">
+                  <div class="upload-area" style="margin-top: 8px;">
+                    <span>📷 העלה אייקון</span>
+                    <input type="file" accept="image/*" onchange="uploadFile(this, '${section}.cards.${i}.${f}', true)">
+                    ${card[f] ? `<br><img class="upload-preview" src="${card[f]}">` : ''}
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="form-group">
+                <label>${f === 'title' ? 'כותרת' : 'תיאור'}</label>
+                <input type="text" data-array="${section}.cards.${i}.${f}" value="${esc(card[f])}">
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `).join('');
+    }
+
+    function renderProcessEditor() {
+      const container = document.getElementById('processStepsEditor');
+      container.innerHTML = content.process.steps.map((step, i) => `
+        <div class="card-editor">
+          <div class="card-editor-header">
+            <h4>שלב ${step.number}</h4>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>מספר</label>
+              <input type="text" data-array="process.steps.${i}.number" value="${esc(step.number)}">
+            </div>
+            <div class="form-group">
+              <label>כותרת</label>
+              <input type="text" data-array="process.steps.${i}.title" value="${esc(step.title)}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>אייקון</label>
+            <input type="text" data-array="process.steps.${i}.icon" value="${esc(step.icon || '')}" dir="ltr">
+            <div class="upload-area" style="margin-top: 8px;">
+              <span>📷 העלה אייקון</span>
+              <input type="file" accept="image/*" onchange="uploadFile(this, 'process.steps.${i}.icon', true)">
+              ${step.icon ? `<br><img class="upload-preview" src="${step.icon}">` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addCard(section) {
+      if (section === 'painPoints') {
+        content.painPoints.cards.push({ title: 'כותרת חדשה', description: 'תיאור חדש' });
+      } else if (section === 'benefits') {
+        content.benefits.cards.push({ title: 'כותרת חדשה', description: 'תיאור חדש', icon: '' });
+      }
+      renderAdmin();
+    }
+
+    function removeCard(section, index) {
+      content[section].cards.splice(index, 1);
+      renderAdmin();
+    }
+
+    function collectFormData() {
+      // Simple path inputs
+      document.querySelectorAll('[data-path]').forEach(el => {
+        const path = el.getAttribute('data-path');
+        let value = el.type === 'range' ? parseInt(el.value) : el.value;
+        setNestedValue(content, path, value);
+      });
+
+      // Array/nested inputs
+      document.querySelectorAll('[data-array]').forEach(el => {
+        const path = el.getAttribute('data-array');
+        const parts = path.split('.');
+        let obj = content;
+        for (let i = 0; i < parts.length - 1; i++) {
+          const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
+          obj = obj[key];
+        }
+        obj[parts[parts.length - 1]] = el.value;
+      });
+    }
+
+    async function saveAll() {
+      collectFormData();
+      const btn = document.getElementById('saveBtn');
+      btn.textContent = '⏳ שומר...';
+
+      try {
+        const res = await fetch('/api/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(content)
+        });
+        const data = await res.json();
+        if (data.success) {
+          btn.textContent = '✅ נשמר!';
+          const status = document.getElementById('saveStatus');
+          status.classList.add('visible');
+          setTimeout(() => {
+            btn.textContent = '💾 שמור שינויים';
+            status.classList.remove('visible');
+          }, 2000);
+        }
+      } catch (err) {
+        btn.textContent = '❌ שגיאה';
+        alert('שגיאה בשמירה: ' + err.message);
+        setTimeout(() => btn.textContent = '💾 שמור שינויים', 2000);
+      }
+    }
+
+    async function uploadFile(input, path, isArray) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Update the corresponding text input
+          const selector = isArray ? `[data-array="${path}"]` : `[data-path="${path}"]`;
+          const textInput = document.querySelector(selector);
+          if (textInput) textInput.value = data.path;
+          setNestedValue(content, path, data.path);
+        }
+      } catch (err) {
+        alert('שגיאה בהעלאה: ' + err.message);
+      }
+    }
+
+    function setupSidebarNav() {
+      const links = document.querySelectorAll('.sidebar-link');
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
+
+    // Keyboard shortcut: Ctrl/Cmd+S to save
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveAll();
+      }
+    });
+
+    loadContent();
+  </script>
+</body>
+</html>

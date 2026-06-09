@@ -1,0 +1,152 @@
+{
+  "site": {
+    "title": "צ׳אנסמייקר - נותנים לזה צאנס אמיתי",
+    "description": "מאגר איכותי לרווקים ורווקות שמוכנים לבנות קשר",
+    "whatsappPhone": "972503230089",
+    "whatsappMessage": "היי, אני מעוניין/ת בשיחת היכרות 😊"
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/shanish99?igsh=Y3hqYnVqZjBxenFu",
+    "facebook": "https://www.facebook.com/share/1BFSAc5yQz/?mibextid=wwXIfr",
+    "tiktok": "https://www.tiktok.com/@shanisherman?_r=1&_t=ZS-972qC5dDDUo",
+    "youtube": "https://www.youtube.com/channel/UCLTKR5uguImVmyq4yt2SNGw"
+  },
+  "nav": {
+    "logo": "צ׳אנסמייקר",
+    "links": [
+      {
+        "text": "בית",
+        "href": "#hero"
+      },
+      {
+        "text": "למה כדאי?",
+        "href": "#benefits"
+      },
+      {
+        "text": "מי אני",
+        "href": "#about"
+      },
+      {
+        "text": "איך זה עובד?",
+        "href": "#how-it-works"
+      }
+    ],
+    "ctaText": "לקביעת שיחת היכרות"
+  },
+  "hero": {
+    "badge": "🔥 כבר 250+ רווקים במאגר",
+    "title": "נותנים לזה",
+    "titleHighlight": "צ׳אנס אמיתי",
+    "subtitle": "מאגר איכותי לרווקים ורווקות דתיים שמוכנים לבנות קשר.\nכי הרבה קשרים טובים נפסלים מוקדם מדי.",
+    "ctaText": "קבעו שיחת היכרות",
+    "videoUrl": "https://www.youtube.com/watch?v=ziwbjbkU4mE",
+    "videoPoster": "assets/images/hero-bg.jpg",
+    "stats": [
+      {
+        "number": "250+",
+        "label": "רווקים במאגר"
+      },
+      {
+        "number": "89%",
+        "label": "שביעות רצון"
+      }
+    ]
+  },
+  "mockup": {
+    "image": "assets/images/whatsapp-mockup.png",
+    "alt": "דוגמאות שיחות וואטסאפ והתאמות"
+  },
+  "painPoints": {
+    "title": "אני זוכרת שהייתי במקומות דומים",
+    "cards": [
+      {
+        "title": "תחושה שכבר ראית הכל",
+        "description": "אותם פרופילים, אותן שיחות, אותה תחושה"
+      },
+      {
+        "title": "שיחות שמתחילות ונגמרות בלי כיוון",
+        "description": "דייטים שמתחילים טוב אבל לא מובילים לשום מקום"
+      },
+      {
+        "title": "תחושה של השקעה שלא מתקדמת",
+        "description": "זמן ואנרגיה שנשפכים בלי תוצאה אמיתית"
+      },
+      {
+        "title": "היו דייטים טובים שהתפספסו בלי סיבה",
+        "description": "קשרים שהיה להם פוטנציאל אבל לא קיבלו הזדמנות"
+      }
+    ]
+  },
+  "benefits": {
+    "title": "כאן זה עובד אחרת",
+    "tagline": "הרבה קשרים טובים נפסלים מוקדם מדי, כאן נותנים להם צ׳אנס אמיתי",
+    "cards": [
+      {
+        "title": "התאמות מתוך היכרות אמיתית",
+        "description": "לא אלגוריתם — אדם אמיתי שמכיר אותך",
+        "icon": "assets/images/icon-card1.png"
+      },
+      {
+        "title": "ליווי אישי וייעוץ",
+        "description": "אוזן קשבת וליווי אישי במידת הצורך",
+        "icon": "assets/images/icon-card3.png"
+      },
+      {
+        "title": "התחייבות מראש ל 2-3 דייטים",
+        "description": "לתת לקשר צ׳אנס אמיתי להתפתח",
+        "icon": "assets/images/icon-card2.png"
+      }
+    ]
+  },
+  "about": {
+    "title": "מי אני",
+    "intro": "היי אני שני, נשואה ואמא",
+    "highlight": "גם אני הייתי שם.",
+    "text1": "שנים של דייטים בלבול, חיפושים, עד שהבנתי שהבעיה היא לא רק באנשים אלא בדרך שבה אנחנו מחפשים וממהרים לפסול.",
+    "boldText": "צ'אנס אמיתי נולד מהמקום הזה!",
+    "text2": "הבנתי שזה לא רק הסיפור שלי, זו תופעה נרחבת. את בעלי הכרתי ב״שליש גן עדן״ אחרי שעברתי תהליך של דיוק, למידה עצמית ואמונה והיום אני מעבירה הלאה את התובנות שלי לאחרים.",
+    "photo": "assets/images/about-photo.jpg"
+  },
+  "process": {
+    "tag": "4 שלבים פשוטים",
+    "title": "איך זה עובד?",
+    "steps": [
+      {
+        "number": "1",
+        "title": "שיחת היכרות",
+        "icon": "assets/images/step1.png"
+      },
+      {
+        "number": "2",
+        "title": "כניסה למאגר",
+        "icon": "assets/images/step2.png"
+      },
+      {
+        "number": "3",
+        "title": "התאמות מדויקות",
+        "icon": "assets/images/step3.png"
+      },
+      {
+        "number": "4",
+        "title": "צ׳אנס אמיתי!",
+        "icon": "assets/images/step4.png"
+      }
+    ]
+  },
+  "cta": {
+    "title": "האם אתם מוכנים לתת צ׳אנס אמיתי לאהבה?",
+    "subtitle": "הצעד הראשון מתחיל בשיחה אחת",
+    "buttonText": "לקביעת שיחת הכירות"
+  },
+  "footer": {
+    "text": "© 2026 תנו צ׳אנס. כל הזכויות שמורות."
+  },
+  "fonts": {
+    "headingSize": 64,
+    "subheadingSize": 44,
+    "bodySize": 18,
+    "smallSize": 15,
+    "cardTitleSize": 18,
+    "cardDescSize": 14
+  }
+}
