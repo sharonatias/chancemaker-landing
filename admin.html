@@ -212,6 +212,7 @@
       <span class="save-status" id="saveStatus">✓ נשמר בהצלחה</span>
       <button class="btn btn-secondary" onclick="window.open('/', '_blank')">👁️ תצוגה מקדימה</button>
       <button class="btn btn-primary" id="saveBtn" onclick="saveAll()">💾 שמור שינויים</button>
+      <button class="btn btn-primary" id="deployBtn" onclick="deployToLive()" style="background: var(--success);">🚀 העלה לאתר</button>
     </div>
   </header>
 
@@ -710,6 +711,31 @@
         alert('שגיאה בשמירה: ' + err.message);
         setTimeout(() => btn.textContent = '💾 שמור שינויים', 2000);
       }
+    }
+
+    async function deployToLive() {
+      const btn = document.getElementById('deployBtn');
+      btn.textContent = '⏳ מעלה לאתר...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/deploy', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          btn.textContent = '✅ האתר עודכן!';
+          alert(data.message);
+        } else {
+          btn.textContent = '❌ שגיאה';
+          alert('שגיאה: ' + data.message);
+        }
+      } catch (err) {
+        btn.textContent = '❌ שגיאה';
+        alert('שגיאה בהעלאה: ' + err.message);
+      }
+      setTimeout(() => {
+        btn.textContent = '🚀 העלה לאתר';
+        btn.disabled = false;
+      }, 3000);
     }
 
     async function uploadFile(input, path, isArray) {
