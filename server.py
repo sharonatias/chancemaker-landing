@@ -4,6 +4,7 @@
 import json
 import os
 import shutil
+import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
@@ -28,6 +29,8 @@ class Handler(SimpleHTTPRequestHandler):
             self._save_content()
         elif parsed.path == '/api/upload':
             self._upload_file()
+        elif parsed.path == '/api/deploy':
+            self._deploy()
         else:
             self.send_error(404)
 
@@ -120,6 +123,51 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(400, 'No file found in upload')
         except Exception as e:
             self.send_error(500, str(e))
+
+    def _deploy(self):
+        try:
+            project_dir = os.path.dirname(os.path.abspath(__file__))
+            # Stage relevant files
+            subprocess.run(['git', 'add', 'index.html', 'styles.css', 'app.js', 'content.json', 'admin.html', 'assets/'],
+                         cwd=project_dir, capture_output=True, text=True)
+
+            # Check if there are changes
+            result = subprocess.run(['git', 'diff', '--cached', '--quiet'],
+                                  cwd=project_dir, capture_output=True)
+            if result.returncode == 0:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self._cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "message": "אין שינויים לעדכן"}).encode('utf-8'))
+                return
+
+            # Commit
+            subprocess.run(['git', 'commit', '-m', 'Update content via admin panel'],
+                         cwd=project_dir, capture_output=True, text=True)
+
+            # Push
+            push_result = subprocess.run(['git', 'push', 'origin', 'main'],
+                                       cwd=project_dir, capture_output=True, text=True, timeout=30)
+
+            if push_result.returncode == 0:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self._cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "message": "האתר עודכן בהצלחה! יתעדכן תוך ~30 שניות"}).encode('utf-8'))
+            else:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self._cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": f"שגיאה בהעלאה: {push_result.stderr}"}).encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": False, "message": str(e)}).encode('utf-8'))
 
 if __name__ == '__main__':
     server = HTTPServer(('0.0.0.0', PORT), Handler)
