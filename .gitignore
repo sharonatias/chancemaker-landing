@@ -1,6 +1,9 @@
 # Screenshots and dev files
 *.png
 !assets/**/*.png
+!favicon-32.png
+!favicon-192.png
+!apple-touch-icon.png
 content.json.backup.*
 full-page-*.png
 full-v2.png
@@ -10,3 +13,4 @@ mockup.html
 node_modules/
 .vercel/
 .DS_Store
+.vercel
